@@ -8,7 +8,7 @@ class WeightTracker():
         self.conn = sqlite3.connect(db_name)
         self.cur = self.conn.cursor()
         self.cur.execute("""CREATE TABLE IF NOT EXISTS weight_logs(
-                date TEXT,
+                date TEXT UNIQUE,
                 weight INTEGER
                 )""")
         self.cur.execute("""CREATE TABLE IF NOT EXISTS user_data(
@@ -22,19 +22,29 @@ class WeightTracker():
 
     def insert_weight(self, weight: int, date: str="") -> None:
         sql = """
-                INSERT INTO weight_logs(date, weight)
-                VALUES({}, ?)
+                INSERT INTO weight_logs(weight, date)
+                VALUES(?, {})
                 """
+        sql_update = """
+            UPDATE weight_logs
+            SET weight=?
+            WHERE date={}
+        """
         curr_date = "strftime('%Y-%m-%d','now')"
         if date is "":
             sql = sql.format(curr_date)
-            self.cur.execute(sql, [weight])
-        elif self.get_weight(date) == 0:
-            sql = sql.format("?")
-            self.cur.execute(sql, [date, weight])
+            sql_update = sql_update.format(curr_date)
+            params = [weight]
         else:
-            return
-        self.conn.commit()
+            sql = sql.format("?")
+            sql_update = sql_update.format("?")
+            params = [weight, date]
+        try:
+            self.cur.execute(sql, params)
+            self.conn.commit()
+        except:
+            self.cur.execute(sql_update, params)
+            self.conn.commit()
 
     def get_weight(self, date: str) -> int:
         sql = """
