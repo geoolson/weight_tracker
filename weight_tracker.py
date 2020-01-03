@@ -52,7 +52,7 @@ class WeightTracker():
                     self.user_info[key] = value
             self._update_user_info()
 
-    def get_user_info(self, name: str):
+    def get_user_info(self, name: str) -> Tuple:
         sql = "SELECT * FROM user_data WHERE name=?"
         self.cur.execute(sql, [name])
         self.conn.commit()
