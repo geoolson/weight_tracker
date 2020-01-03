@@ -115,6 +115,13 @@ class WeightTracker():
         except:
             return 0
 
+    def get_latest_weight(self) -> Tuple[int, str]:
+        self.cur.execute("""
+            SELECT weight, MAX(date)
+            FROM weight_logs""")
+        self.conn.commit()
+        return self.cur.fetchone()
+
     def get_weight_logs(self) -> List[Tuple[str, int]]:
         self.cur.execute("SELECT * FROM weight_logs")
         self.conn.commit()
@@ -143,3 +150,4 @@ if "__main__" in __name__:
     print("goal weight {}".format(wt.user_info.get("goal_weight")))
     print("start date {}".format(wt.user_info.get("start_date")))
     print("goal date {}".format(wt.user_info.get("goal_date")))
+    print("latest weight {}".format(wt.get_latest_weight()))
