@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import sqlite3
-from typing import List, Tuple
+from typing import List, Tuple, Any
 import argparse
 
 class WeightTracker():
@@ -55,7 +55,6 @@ class WeightTracker():
     def get_user_info(self, name: str) -> Tuple:
         sql = "SELECT * FROM user_data WHERE name=?"
         self.cur.execute(sql, [name])
-        self.conn.commit()
         return self.cur.fetchone()
 
     def _update_user_info(self) -> None:
@@ -76,7 +75,7 @@ class WeightTracker():
         self.cur.execute(sql, user_info)
         self.conn.commit()
 
-    def insert_weight(self, weight: int, date: str="") -> None:
+    def insert_weight(self, weight: int, date: str=None) -> None:
         sql = """
                 INSERT INTO weight_logs(weight, date)
                 VALUES(?, {})
@@ -87,7 +86,8 @@ class WeightTracker():
             WHERE date={}
         """
         curr_date = "strftime('%Y-%m-%d','now')"
-        if date is "":
+        params: List[Any] = []
+        if date is None:
             sql = sql.format(curr_date)
             sql_update = sql_update.format(curr_date)
             params = [weight]
@@ -109,7 +109,6 @@ class WeightTracker():
                 WHERE date=?
                 """
         self.cur.execute(sql, [date])
-        self.conn.commit()
         try:
             return self.cur.fetchone()[0]
         except:
@@ -119,12 +118,10 @@ class WeightTracker():
         self.cur.execute("""
             SELECT weight, MAX(date)
             FROM weight_logs""")
-        self.conn.commit()
         return self.cur.fetchone()
 
     def get_weight_logs(self) -> List[Tuple[str, int]]:
         self.cur.execute("SELECT * FROM weight_logs")
-        self.conn.commit()
         return self.cur.fetchall()
 
 if "__main__" in __name__:
