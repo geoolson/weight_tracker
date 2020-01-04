@@ -2,9 +2,12 @@
 import sqlite3
 from typing import List, Tuple, Any
 import argparse
+from datetime import date
+import math
 
 class WeightTracker():
     def __init__(self, name, **kwargs):
+        self.current_weight: int=None
         self.db_name = "weight_tracker.db"
         if 'db_name' in kwargs and kwargs['db_name']:
             self.db_name = kwargs['db_name']
@@ -121,8 +124,21 @@ class WeightTracker():
         return self.cur.fetchone()
 
     def get_weight_logs(self) -> List[Tuple[str, int]]:
-        self.cur.execute("SELECT * FROM weight_logs")
+        self.cur.execute("SELECT date, weight FROM weight_logs")
         return self.cur.fetchall()
+
+    def get_linear_monthly_goal(self)-> int:
+        avg_month = 30.42
+        goal_date = self._str_to_date(self.user_info['goal_date'])
+        date_delta = date.today() - goal_date
+        if self.current_weight is None:
+            self.current_weight = self.get_latest_weight()[0]
+        delta_weight = self.current_weight - self.user_info["goal_weight"]
+        return abs(delta_weight / math.floor(date_delta.days/avg_month))
+
+    def _str_to_date(self, date_str:str):
+        new_date = list(map(int, date_str.split("-")))
+        return date(new_date[0], new_date[1], new_date[2])
 
 if "__main__" in __name__:
     parser = argparse.ArgumentParser()
@@ -148,3 +164,4 @@ if "__main__" in __name__:
     print("start date {}".format(wt.user_info.get("start_date")))
     print("goal date {}".format(wt.user_info.get("goal_date")))
     print("latest weight {}".format(wt.get_latest_weight()))
+    print("you need to lose {} pounds per month to reach your goal".format(wt.get_linear_monthly_goal()))
