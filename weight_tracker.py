@@ -158,7 +158,7 @@ if "__main__" in __name__:
     if args.insert_weight:
         if args.date:
             wt.insert_weight(int(args.insert_weight), args.date)
-        else:        
+        else: 
             wt.insert_weight(int(args.insert_weight))
     print("*****weight logs**** {}".format(wt.get_weight_logs()))
     print("name " +wt.user_info.get('name'))
@@ -167,6 +167,6 @@ if "__main__" in __name__:
     print("start date {}".format(wt.user_info.get("start_date")))
     print("goal date {}".format(wt.user_info.get("goal_date")))
     print("latest weight {}".format(wt.get_latest_weight()))
-    goal_str = "you need to lose {:.2f} pounds per month to reach your goal"
-    print(goal_str.format(wt.get_weight_loss_goal()))
-    print(goal_str.format(wt.get_weight_loss_goal(weekly=True)))
+    goal_str = "you need to lose {:.2f} pounds per {} to reach your goal"
+    print(goal_str.format(wt.get_weight_loss_goal(), "month"))
+    print(goal_str.format(wt.get_weight_loss_goal(weekly=True), "week"))
