@@ -133,3 +133,6 @@ dmypy.json
 
 # vim 
 *.swp
+
+# API credentials
+api_cred.py
