@@ -127,8 +127,11 @@ class WeightTracker():
         self.cur.execute("SELECT date, weight FROM weight_logs")
         return self.cur.fetchall()
 
-    def get_linear_monthly_goal(self)-> int:
+    # default is monthly weight loss goal
+    def get_weight_loss_goal(self, weekly: bool=False)-> int:
         avg_month = 30.42
+        if weekly:
+            avg_month = 7
         goal_date = self._str_to_date(self.user_info['goal_date'])
         date_delta = date.today() - goal_date
         if self.current_weight is None:
@@ -164,4 +167,6 @@ if "__main__" in __name__:
     print("start date {}".format(wt.user_info.get("start_date")))
     print("goal date {}".format(wt.user_info.get("goal_date")))
     print("latest weight {}".format(wt.get_latest_weight()))
-    print("you need to lose {} pounds per month to reach your goal".format(wt.get_linear_monthly_goal()))
+    goal_str = "you need to lose {:.2f} pounds per month to reach your goal"
+    print(goal_str.format(wt.get_weight_loss_goal()))
+    print(goal_str.format(wt.get_weight_loss_goal(weekly=True)))
